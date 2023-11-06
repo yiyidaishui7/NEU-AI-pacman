@@ -5,31 +5,25 @@ import queue
 import heapq
 
 # 地图（a）的表示
-# MAP = [
-#     " WW W WWWWW W WW ",
-#     "    W   W   W    ",
-#     "WWW WWW W WWW WWW",
-#     "WWW W       W WWW",
-#     "WWW W WW WW W WWW",
-#     "      WE  W      ",
-#     "WWW W WWWWW W WWW",
-#     "WWW W       W WWW",
-#     "WWW W WWWWW W WWW",
-#     "        W        ",
-#     " WW WWW W WWW WW ",
-#     "  W     W     W  ",
-#     "W W W WWWWW W W W",
-#     "    W   W   W    ",
-#     " WWWWWW W WWWWWWP",
-# ]  # 15行*17列
-
 MAP = [
-"WWWWW",
-"WP  W",
-"W   W",
-"W E W",
-"WWWWW",
-]
+    " WW W WWWWW W WW ",
+    "    W   W   W    ",
+    "WWW WWW W WWW WWW",
+    "WWW W       W WWW",
+    "WWW W WW WW W WWW",
+    "      WE  W      ",
+    "WWW W WWWWW W WWW",
+    "WWW W       W WWW",
+    "WWW W WWWWW W WWW",
+    "        W        ",
+    " WW WWW W WWW WW ",
+    "  W     W     W  ",
+    "W W W WWWWW W W W",
+    "    W   W   W   P",
+    " WWWWWW W WWWWWW ",
+]  # 15行*17列
+
+
 # 定义地图符号
 WALL = 'W'
 PACMAN = 'P'
@@ -42,8 +36,8 @@ DIRECTIONS = [(0, 1), (0, -1), (1, 0), (-1, 0)]
 
 class Node:
     def __init__(self, x, y, cost, g_cost, h_cost, parent=None):
-        self.x = x
-        self.y = y
+        self.x = x  # 行
+        self.y = y  # 列
         self.cost = cost  # ucs-cost / greedy-h_cost
         self.g_cost = g_cost  # 从起点到当前节点的实际代价
         self.h_cost = h_cost  # 从当前节点到目标节点的估计代价（启发式）
@@ -63,15 +57,17 @@ pacman_image = None  # 全局变量，用于保存Pac-Man图片
 # 创建一个字典来存储图片
 image_cache = {}
 
+
 def load_image(image_path):
     # 检查缓存中是否已存在该图片
     if image_path in image_cache:
         return image_cache[image_path]
-    
+
     # 如果图片不在缓存中，加载它并存储到缓存中
     image = PhotoImage(file=image_path)
     image_cache[image_path] = image
     return image
+
 
 def draw_map(canvas, map_data):
     canvas.delete("all")  # 删除画布上的所有元素，以清空之前的绘画
@@ -82,7 +78,7 @@ def draw_map(canvas, map_data):
             if char == WALL:  # 画墙
                 # wall_image = PhotoImage(file="MyExp/images/pinky.png")
                 wall_image = load_image("MyExp/images/wall.png")
-                canvas.create_image(x * CELL_SIZE, y* CELL_SIZE, 
+                canvas.create_image(x * CELL_SIZE, y * CELL_SIZE,
                                     image=wall_image, anchor="nw")
                 # canvas.create_rectangle(x * CELL_SIZE, y * CELL_SIZE,
                 #                         (x + 1) * CELL_SIZE, (y + 1) * CELL_SIZE,
@@ -100,6 +96,7 @@ def draw_map(canvas, map_data):
 
 # 用DFS搜索目标
 def dfs(map_data, start, goal):
+
     visited = set()  # 用于存储已访问的节点
     stack = [Node(start[0], start[1], 0, 0, 0)]  # 用于DFS的栈
 
@@ -123,9 +120,9 @@ def dfs(map_data, start, goal):
             new_x, new_y = x + dx, y + dy
 
             # 检查新节点是否在地图范围内，不是墙，并且未访问过
-            if (0 <= new_x < len(map_data[0]) and
-                0 <= new_y < len(map_data) and
-                map_data[new_y][new_x] != WALL and
+            if (0 <= new_x < len(map_data) and
+                0 <= new_y < len(map_data[0]) and
+                map_data[new_x][new_y] != WALL and
                     (new_x, new_y) not in visited):
                 # 创建新节点，并将其加入栈中
                 new_node = Node(new_x, new_y, 0, 0, 0, parent=current_node)
@@ -167,12 +164,12 @@ def bfs(map_data, start, goal):
         # 遍历当前节点的所有邻居节点
         for dx, dy in DIRECTIONS:
             new_x, new_y = x + dx, y + dy
-            # 检查邻居节点是否在地图范围内、不是墙、且未访问过
-            if (0 <= new_x < len(map_data[0]) and
-                0 <= new_y < len(map_data) and
-                map_data[new_y][new_x] != WALL and
+            # 检查新节点是否在地图范围内，不是墙，并且未访问过
+            if (0 <= new_x < len(map_data) and
+                0 <= new_y < len(map_data[0]) and
+                map_data[new_x][new_y] != WALL and
                     (new_x, new_y) not in visited):
-                # 创建一个新节点，并将其加入队列中
+                # 创建新节点，并将其加入栈中
                 new_node = Node(new_x, new_y, 0, 0, 0, parent=current_node)
                 frontier.put(new_node)
 
@@ -200,9 +197,9 @@ def ucs(map_data, start, goal):
 
         for dx, dy in DIRECTIONS:
             new_x, new_y = x+dx, y+dy
-            if (0 <= new_x < len(map_data[0]) and
-                0 <= new_y < len(map_data) and
-                map_data[new_y][new_x] != WALL and
+            if (0 <= new_x < len(map_data) and
+                0 <= new_y < len(map_data[0]) and
+                map_data[new_x][new_y] != WALL and
                     (new_x, new_y) not in visited):
 
                 new_cost = current_node.cost + 1  # 此处假设每一步成本都为1
@@ -244,9 +241,9 @@ def greedy(map_data, start, goal):
             new_x, new_y = x + dx, y + dy
 
             # 检查新节点是否在地图范围内，不是墙，并且未访问过
-            if (0 <= new_x < len(map_data[0]) and
-                0 <= new_y < len(map_data) and
-                map_data[new_y][new_x] != WALL and
+            if (0 <= new_x < len(map_data) and
+                0 <= new_y < len(map_data[0]) and
+                map_data[new_x][new_y] != WALL and
                     (new_x, new_y) not in visited):
                 # 创建新节点，并将其加入优先队列
                 new_node = Node(new_x, new_y, heuristic(
@@ -284,9 +281,9 @@ def astar(map_data, start, goal):
             new_x, new_y = x + dx, y + dy
 
             # 检查新节点是否在地图范围内，不是墙，并且未访问过
-            if (0 <= new_x < len(map_data[0]) and
-                0 <= new_y < len(map_data) and
-                map_data[new_y][new_x] != WALL and
+            if (0 <= new_x < len(map_data) and
+                0 <= new_y < len(map_data[0]) and
+                map_data[new_x][new_y] != WALL and
                     (new_x, new_y) not in visited):
                 # 计算新节点的实际代价（g_cost）
                 new_g_cost = current_node.g_cost + 1  # 假设每一步的代价都是1，如果有不同的代价，可以根据实际情况调整
@@ -298,20 +295,6 @@ def astar(map_data, start, goal):
     # 如果没有找到路径，返回空路径
     return []
 
-# 问题二 值搜索
-def value(map_data, start, goal, num):
-    path = []
-    nod = []
-    DISCOUNT = 1
-
-    for dx,dy in DIRECTIONS:
-        new_x,new_y = x+dx,y+dy
-
-    reward = 0
-
-    reward += (DISCOUNT*ahead +(1-DISCOUNT)/2*left + (1-DISCOUNT)/2*right)
-    # for i in range(num):
-        
 
 def animate_search(map_data, start, goal, search_algorithm):
     root = tk.Tk()
@@ -333,34 +316,33 @@ def animate_search(map_data, start, goal, search_algorithm):
         path = greedy(map_data, start, goal)
     elif search_algorithm == "A*":
         path = astar(map_data, start, goal)
-    elif search_algorithm == "value":
-        path = value(map_data, start, goal)
-
 
     if path:
-        print(search_algorithm, "length:", len(path)-1, " path:\n", path)
+        print(search_algorithm, "length:", len(path)-1,
+              "\n", search_algorithm, "path:\n", path)
 
         for x, y in path:
             # 清除上一步位置的Pac-Man
             if path.index((x, y)) > 0:
                 prev_x, prev_y = path[path.index((x, y)) - 1]
-                map_data[prev_y] = map_data[prev_y][:prev_x] + \
-                    ' ' + map_data[prev_y][prev_x+1:]
+                map_data[prev_x] = map_data[prev_x][:prev_y] + \
+                    ' ' + map_data[prev_x][prev_y+1:]
 
         # 绘制新位置的Pac-Man
-            map_data[y] = map_data[y][:x] + PACMAN + map_data[y][x+1:]
+            map_data[x] = map_data[x][:y] + PACMAN + map_data[x][y+1:]
             draw_map(canvas, map_data)
             root.update()
-            time.sleep(0.5)  # Adjust animation speed
+            time.sleep(0.3)  # Adjust animation speed
     root.mainloop()
 
 
 if __name__ == "__main__":
     CELL_SIZE = 30
-    # start = (16, 14)  # y,x
-    # goal = (7, 5)
+
+    start = (13, 16)  # x,y
+    goal = (5, 7)
+
     # Choose the search algorithm (DFS, BFS, UCS, Greedy, A*)
-    start = (1,1)
-    goal = (2,3)
-    search_algorithm = "A*"
+    print("请输入你要选择的算法(请输入:DFS, BFS, UCS, Greedy, A*)")
+    search_algorithm = input()
     animate_search(MAP, start, goal, search_algorithm)
