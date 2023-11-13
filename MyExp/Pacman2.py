@@ -40,7 +40,7 @@ def draw_map(canvas, map_data):
                                         (x + 1) * CELL_SIZE, (y + 1) * CELL_SIZE,
                                         fill="GRAY", outline="")
             elif char == PACMAN:  # 画吃豆人
-                pacman_image = PhotoImage(file="MyExp/images/pacmanR2.png")
+                pacman_image = PhotoImage(file="MyExp/pacmanR2.png")
                 canvas.create_image((x + 0.1) * CELL_SIZE, (y + 0.1)
                                     * CELL_SIZE, image=pacman_image, anchor="nw")
 
